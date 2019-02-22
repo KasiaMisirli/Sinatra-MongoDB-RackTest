@@ -5,11 +5,11 @@ RSpec.describe "PATCH /ratingQuestions/:id" do
       post "/ratingQuestions", { title: "Hello World" }.to_json
       body = JSON.parse(last_response.body)
       patch "/ratingQuestions/#{body["id"]}", { tag: "greetings" }.to_json
-      newBody = JSON.parse(last_response.body)
+      new_body = JSON.parse(last_response.body)
       expect(last_response.status).to eq(200)
-      expect(newBody.is_a?(Hash)).to eq(true)
-      expect(newBody["title"]).to eq("Hello World")
-      expect(newBody["tag"]).to eq("greetings")
+      expect(new_body.is_a?(Hash)).to eq(true)
+      expect(new_body["title"]).to eq("Hello World")
+      expect(new_body["tag"]).to eq("greetings")
     end
   end
 

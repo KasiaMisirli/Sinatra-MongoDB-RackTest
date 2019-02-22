@@ -5,11 +5,11 @@ RSpec.describe "PUT /ratingQuestions/:id" do
       post "/ratingQuestions", { title: "Hello World", tag: "greetings" }.to_json
       body = JSON.parse(last_response.body)
       put "/ratingQuestions/#{body["id"]}", { title: "Hello Mars" }.to_json
-      newBody = JSON.parse(last_response.body)
+      new_body = JSON.parse(last_response.body)
       expect(last_response.status).to eq(200)
-      expect(newBody.is_a?(Hash)).to eq(true)
-      expect(newBody["title"]).to eq("Hello Mars")
-      expect(newBody.key?("tag")).to be true
+      expect(new_body.is_a?(Hash)).to eq(true)
+      expect(new_body["title"]).to eq("Hello Mars")
+      expect(new_body.key?("tag")).to be true
     end
   end
 
