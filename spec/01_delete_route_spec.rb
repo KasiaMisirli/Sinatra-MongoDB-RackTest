@@ -1,4 +1,3 @@
-
 RSpec.describe "DELETE /ratingQuestions/:id" do
   context "with an existing question" do
     it "returns a 204 No Content" do

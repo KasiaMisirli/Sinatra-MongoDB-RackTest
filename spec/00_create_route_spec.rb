@@ -5,14 +5,25 @@ RSpec.describe "POST /ratingQuestions" do
   let(:new_tag) { "new tag" }
 
   context "when the request has a body" do
-    it "returns the new document" do
+    before do
       post "/ratingQuestions", { title: new_title, tag: new_tag }.to_json
-      question = JSON.parse(last_response.body)
+    end
+
+    let(:question) do
+      JSON.parse(last_response.body)
+    end
+
+    it "returns a 201" do
       expect(last_response.status).to eq(201)
+    end
+
+    it "returns the new document" do
       expect(question.is_a?(Hash)).to eq(true)
       expect(question.key?("id")).to eq(true)
-      expect(question["title"]).to eq(new_title)
-      expect(question["tag"]).to eq(new_tag)
+      aggregate_failures do
+        expect(question["title"]).to eq(new_title)
+        expect(question["tag"]).to eq(new_tag)
+      end
     end
   end
 

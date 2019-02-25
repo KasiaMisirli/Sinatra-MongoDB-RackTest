@@ -12,10 +12,9 @@ before do
   response.headers["Access-Control-Allow-Headers"] = "Authorization", "Content-Type", "Accept", "X-User-Email", "X-Auth-Token"
   response.headers['Access-Control-Allow-Origin'] = "http://localhost:3000"
   content_type :json
-  rating_questions = JSON.parse(File.read('db.json'))['ratingQuestions']
 end
 
-options "*" do 
+options "*" do
   200
 end
 
@@ -36,98 +35,60 @@ get '/ratingQuestions' do
 end
 
 get '/ratingQuestions/:id' do
-  this_id = params[:id]
-  question = RatingQuestion.find(this_id)
+  question = RatingQuestion.find(params[:id])
 
-  if !question
-    response.status = 404
-    response
-  else
-    single = serialize_question(question).to_json
-  end
+  halt 404 unless question
 
-  if single 
-    response.status = 200
-  end
-
-  single
+  serialize_question(question).to_json
 end
 
 post '/ratingQuestions' do
-  error = {"errors"=>{"title"=>["can't be blank"]}}
+  body = request.body.read
+  halt 400 if body.size.zero?
 
-  if request.body.size.zero?
-    return 400
-  end
+  json_params = JSON.parse(body)
+  question = RatingQuestion.new(json_params)
 
-  json_params = JSON.parse(request.body.read)
-  question = RatingQuestion.create(json_params)
-
-  if question.title == '' 
-    response.body = error.to_json
-    response.status = 422 
-    return response
+  if question.save
+    status 201
+    response.body = serialize_question(question).to_json
   else
-    question.save
+    response.body = { "errors" => question.errors.messages }.to_json
+    halt 422
   end
-  
-  response.body = serialize_question(question).to_json
-  response.status = 201
-  response
 end
 
 delete '/ratingQuestions/:id' do
-  this_id = params[:id]
-  question = RatingQuestion.find(this_id)
+  question = RatingQuestion.find(params[:id])
+  halt 404 unless question
 
-  if question == nil
-    response.status = 404
-    return response
-  else
-    question.delete
-  end
- 
-  response.status = 204 
-  response
+  question.destroy
+  status 204
+  {}
 end
 
-put '/ratingQuestions/:id' do
 
+def update
   json_params = JSON.parse(request.body.read)
-  this_id = params[:id]
-  question = RatingQuestion.find(this_id)
+  question = RatingQuestion.find(params[:id])
+  halt 404 unless question
 
-  if question == nil
-    response.status = 404
-    return response
-  else
-    question.update(json_params)
-  end
- 
-  if question
-    response.status = 200
-    response.body = question.to_json
-    response
-  end
-
+  question.update(json_params)
+  question.to_json
 end
 
-patch '/ratingQuestions/:id' do
-  json_params = JSON.parse(request.body.read)
-  this_id = params[:id]
-  question = RatingQuestion.find(this_id)
+put('/ratingQuestions/:id') { update }
+patch('/ratingQuestions/:id') { update }
 
-  if question == nil
-    response.status = 404
-    return response
-  else
-    question.update(json_params)
+
+before_action :find_question
+
+def find_question
+  question = RatingQuestion.find(params[:id])
+  unless question
+    head 404
+    render plain: "Not found"
+    return
   end
-
-  if question
-    response.status = 200
-    response.body = question.to_json
-    response
-  end
-
+  question
 end
