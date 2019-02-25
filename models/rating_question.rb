@@ -3,4 +3,6 @@ class RatingQuestion
     include Mongoid::Timestamps
     field :title, :type => String
     field :tag, :type => String
+
+    validates :title, presence: true
   end
